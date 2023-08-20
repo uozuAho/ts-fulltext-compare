@@ -16,15 +16,21 @@ async function runAll() {
 
 async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
     let index: IIndex;
+    const numRuns = 5;
+    const numFilesToIndex = 1000;
 
-    for (let i = 0; i < 5; i++) {
+    const indexTimes: number[] = [];
+    const searchTimes: number[] = [];
+    const memoryUsages: number[] = [];
+
+    for (let i = 0; i < numRuns; i++) {
         forceGc();
         index = buildIndex();
 
         const mdFiles = glob
             .sync('../../data/10000files/10000 markdown files/*.md', { cwd: __dirname })
             .map(f => path.resolve(`${__dirname}/${f}`))
-            .slice(0, 1000);
+            .slice(0, numFilesToIndex);
 
         let timeStart = Date.now();
         for (const mdFile of mdFiles) {
@@ -32,14 +38,23 @@ async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
             index.indexFile(mdFile, text, []);
         }
         let timeEnd = Date.now();
-        console.log(`${name}: Indexing ${mdFiles.length} files took ${timeEnd - timeStart}ms`);
-        console.log(process.memoryUsage());
+        indexTimes.push(timeEnd - timeStart);
+        memoryUsages.push(process.memoryUsage().heapUsed);
 
         timeStart = Date.now();
         const results = (await index.search('Serpent room')).slice(0, 10);
         timeEnd = Date.now();
-        console.log(`${name}: Searching ${1000} files took ${timeEnd - timeStart}ms`);
+        searchTimes.push(timeEnd - timeStart);
     }
+
+    const indexTimeAvg = indexTimes.reduce((a, b) => a + b, 0) / numRuns;
+    const searchTimeAvg = searchTimes.reduce((a, b) => a + b, 0) / numRuns;
+    const memoryUsageAvg = memoryUsages.reduce((a, b) => a + b, 0) / numRuns;
+
+    console.log(`${name} indexing ${numFilesToIndex} files:`);
+    console.log(`  index time avg: ${indexTimeAvg}ms`);
+    console.log(`  search time avg: ${searchTimeAvg}ms`);
+    console.log(`  memory usage avg: ${memoryUsageAvg / 1024 / 1024}MB`);
 }
 
 function forceGc() {

@@ -7,8 +7,6 @@
 - npm run bench
 
 # todo
-- bench: print mem usage in MB
-- summarise bench stats
 - add all used lunr features to other libs
 - test additional features:
     - add document to index
