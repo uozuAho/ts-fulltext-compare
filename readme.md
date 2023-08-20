@@ -8,6 +8,7 @@
 
 # todo
 - add minisearch
+    - use generic search in bench
 - add all used lunr features to other libs
 - test additional features:
     - add document to index
