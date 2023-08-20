@@ -2,9 +2,11 @@
   "devDependencies": {
     "@types/flexsearch": "^0.7.3",
     "@types/jest": "^29.5.3",
+    "@types/js-search": "^1.4.0",
     "@types/lunr": "^2.3.4",
     "flexsearch": "^0.7.31",
     "glob": "^10.3.3",
+    "js-search": "^2.0.1",
     "lunr": "^2.3.9",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
