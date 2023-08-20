@@ -6,16 +6,18 @@ import { MyJsSearch } from '../jssearch/myJsSearch';
 import { IIndex } from '../IIndex';
 import { setFlagsFromString } from 'v8';
 import { runInNewContext } from 'vm';
+import { MyMiniSearch } from '../minisearch/myMiniSearch';
 
 type IndexBuilder = () => IIndex;
 
 async function runAll() {
     await timeIndexingFiles('lunr', () => new LunrSearch());
     await timeIndexingFiles('jssearch', () => new MyJsSearch());
+    await timeIndexingFiles('minisearch', () => new MyMiniSearch());
 }
 
 async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
-    let index: IIndex;
+    let index: IIndex | undefined;
     const numRuns = 5;
     const numFilesToIndex = 1000;
 
@@ -23,7 +25,10 @@ async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
     const searchTimes: number[] = [];
     const memoryUsages: number[] = [];
 
+    console.log(`${name} indexing ${numFilesToIndex} files ${numRuns} times...`);
+
     for (let i = 0; i < numRuns; i++) {
+        index = undefined;
         forceGc();
         index = buildIndex();
 
@@ -51,7 +56,6 @@ async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
     const searchTimeAvg = searchTimes.reduce((a, b) => a + b, 0) / numRuns;
     const memoryUsageAvg = memoryUsages.reduce((a, b) => a + b, 0) / numRuns;
 
-    console.log(`${name} indexing ${numFilesToIndex} files:`);
     console.log(`  index time avg: ${indexTimeAvg}ms`);
     console.log(`  search time avg: ${searchTimeAvg}ms`);
     console.log(`  memory usage avg: ${memoryUsageAvg / 1024 / 1024}MB`);
