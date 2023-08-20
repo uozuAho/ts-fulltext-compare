@@ -7,8 +7,8 @@
 - npm run bench
 
 # todo
-- add minisearch
-    - use generic search in bench
+- force gc in bench
+- bench: print mem usage in MB
 - add all used lunr features to other libs
 - test additional features:
     - add document to index

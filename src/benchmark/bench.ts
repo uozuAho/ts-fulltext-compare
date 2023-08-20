@@ -5,15 +5,17 @@ import fs from 'fs';
 import { MyJsSearch } from '../jssearch/myJsSearch';
 import { IIndex } from '../IIndex';
 
-async function runAll() {
-    const lunrSearch = new LunrSearch();
-    const jsSearch = new MyJsSearch();
+type IndexBuilder = () => IIndex;
 
-    await benchmarkIndex('lunr', lunrSearch);
-    await benchmarkIndex('jssearch', jsSearch);
+async function runAll() {
+    await timeIndexingFiles('lunr', () => new LunrSearch());
+    await timeIndexingFiles('jssearch', () => new MyJsSearch());
 }
 
-async function benchmarkIndex(name: string, index: IIndex) {
+async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
+    for (let i = 0; i < 5; i++) {
+        const index = buildIndex();
+
     const mdFiles = glob
         .sync('../../data/10000files/10000 markdown files/*.md', { cwd: __dirname })
         .map(f => path.resolve(`${__dirname}/${f}`))
@@ -31,8 +33,15 @@ async function benchmarkIndex(name: string, index: IIndex) {
     timeStart = Date.now();
     const results = (await index.search('Serpent room')).slice(0, 10);
     timeEnd = Date.now();
-    // console.log(results);
     console.log(`${name}: Searching ${1000} files took ${timeEnd - timeStart}ms`);
+    }
 }
+
+// import { setFlagsFromString } from 'v8';
+// import { runInNewContext } from 'vm';
+
+// setFlagsFromString('--expose_gc');
+// const gc = runInNewContext('gc'); // nocommit
+// gc();
 
 runAll().then(() => console.log('done'));
