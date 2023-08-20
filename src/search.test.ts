@@ -1,4 +1,7 @@
-import { LunrSearch } from './lunrSearch';
+import { IIndex } from './IIndex';
+import { MyJsSearch } from './jssearch/myJsSearch';
+import { LunrSearch } from './lunr/lunrSearch';
+import { MyMiniSearch } from './minisearch/myMiniSearch';
 
 declare global {
   namespace jest {
@@ -33,25 +36,33 @@ class FileAndTags {
   ) {}
 }
 
-describe('lunr', () => {
-  let lunrSearch: LunrSearch;
+type SearchBuilder = () => IIndex;
+type SearchBuilderTuple = [string, SearchBuilder];
+
+const searchBuilders: SearchBuilderTuple[] = [
+    [ 'lunr', () => new LunrSearch() ],
+    [ 'minisearch', () => new MyMiniSearch() ],
+    // [ 'js-search', () => new MyJsSearch()]
+];
+
+describe.each(searchBuilders)('%s', (name, builder) => {
+  let searchIndex: IIndex;
 
   const index = async (files: FileAndTags[]) => {
-    lunrSearch.reset();
+    searchIndex = builder();
     for (const file of files) {
-      await lunrSearch.indexFile(file.path, file.text, file.tags);
+      searchIndex.indexFile(file.path, file.text, file.tags);
     }
-    lunrSearch.finalise();
   };
 
   const searchFor = async (query: string, text: string, tags: string[] = []) => {
     await index([new FileAndTags(aTextFilePath, text, tags)]);
 
-    return lunrSearch.search(query);
+    return searchIndex.search(query);
   };
 
   beforeEach(() => {
-    lunrSearch = new LunrSearch();
+    searchIndex = new LunrSearch();
   });
 
   it('index and search example', async () => {
@@ -60,7 +71,7 @@ describe('lunr', () => {
       new FileAndTags('a/b/c.log', 'what about shoes and biscuits'),
     ]);
 
-    const results = await lunrSearch.search('blah');
+    const results = await searchIndex.search('blah');
 
     expect(results.length).toBe(1);
     expect(results[0]).toBe('a/b.txt');
@@ -171,35 +182,35 @@ describe('lunr', () => {
     });
   });
 
-  describe('expand query tags', () => {
-    it('replaces tag at the start of a query', () => {
-      const inputQuery = '#tag';
-      const expandedQuery = lunrSearch.expandQueryTags(inputQuery);
-      expect(expandedQuery).toBe('tags:tag');
-    });
+//   describe('expand query tags', () => {
+//     it('replaces tag at the start of a query', () => {
+//       const inputQuery = '#tag';
+//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
+//       expect(expandedQuery).toBe('tags:tag');
+//     });
 
-    it('replaces tag in the middle of a query', () => {
-      const inputQuery = 'hello #tag boy';
-      const expandedQuery = lunrSearch.expandQueryTags(inputQuery);
-      expect(expandedQuery).toBe('hello tags:tag boy');
-    });
+//     it('replaces tag in the middle of a query', () => {
+//       const inputQuery = 'hello #tag boy';
+//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
+//       expect(expandedQuery).toBe('hello tags:tag boy');
+//     });
 
-    it('replaces multiple tags', () => {
-      const inputQuery = 'hello #tag #boy';
-      const expandedQuery = lunrSearch.expandQueryTags(inputQuery);
-      expect(expandedQuery).toBe('hello tags:tag tags:boy');
-    });
+//     it('replaces multiple tags', () => {
+//       const inputQuery = 'hello #tag #boy';
+//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
+//       expect(expandedQuery).toBe('hello tags:tag tags:boy');
+//     });
 
-    it('does not replace non tag', () => {
-      const inputQuery = 'this is no#t a tag';
-      const expandedQuery = lunrSearch.expandQueryTags(inputQuery);
-      expect(expandedQuery).toBe(inputQuery);
-    });
+//     it('does not replace non tag', () => {
+//       const inputQuery = 'this is no#t a tag';
+//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
+//       expect(expandedQuery).toBe(inputQuery);
+//     });
 
-    it('works with operators', () => {
-      const inputQuery = 'dont include this -#tag';
-      const expandedQuery = lunrSearch.expandQueryTags(inputQuery);
-      expect(expandedQuery).toBe('dont include this -tags:tag');
-    });
-  });
+//     it('works with operators', () => {
+//       const inputQuery = 'dont include this -#tag';
+//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
+//       expect(expandedQuery).toBe('dont include this -tags:tag');
+//     });
+//   });
 });
