@@ -4,27 +4,33 @@ import path from 'path';
 import fs from 'fs';
 import { MyJsSearch } from '../jssearch/myJsSearch';
 
-function runBench() {
-    lunrIndexBench();
+async function runBench() {
+    await lunrIndexBench();
     jsSearchIndexBench();
 }
 
-function lunrIndexBench() {
+async function lunrIndexBench() {
     const lunrSearch = new LunrSearch();
 
     const mdFiles = glob
         .sync('../../data/10000files/10000 markdown files/*.md', { cwd: __dirname })
         .map(f => path.resolve(`${__dirname}/${f}`));
 
-    const timeStart = Date.now();
+    let timeStart = Date.now();
     for (const mdFile of mdFiles.slice(0, 1000)) {
         const text = fs.readFileSync(mdFile, 'utf8');
         lunrSearch.indexFile(mdFile, text, []);
     }
     lunrSearch.finalise();
-    const timeEnd = Date.now();
-
+    let timeEnd = Date.now();
     console.log(`lunr: Indexing ${1000} files took ${timeEnd - timeStart}ms`);
+    console.log(process.memoryUsage());
+
+    timeStart = Date.now();
+    const asdf = (await lunrSearch.search('Serpent room')).slice(0, 10);
+    timeEnd = Date.now();
+    console.log(asdf);
+    console.log(`lunr: Searching ${1000} files took ${timeEnd - timeStart}ms`);
 }
 
 function jsSearchIndexBench() {
@@ -32,16 +38,23 @@ function jsSearchIndexBench() {
 
     const mdFiles = glob
         .sync('../../data/10000files/10000 markdown files/*.md', { cwd: __dirname })
-        .map(f => path.resolve(`${__dirname}/${f}`));
+        .map(f => path.resolve(`${__dirname}/${f}`))
+        .slice(0, 1000);
 
-    const timeStart = Date.now();
-    for (const mdFile of mdFiles.slice(0, 1000)) {
+    let timeStart = Date.now();
+    for (const mdFile of mdFiles) {
         const text = fs.readFileSync(mdFile, 'utf8');
         jss.indexFile(mdFile, text, []);
     }
-    const timeEnd = Date.now();
-
+    let timeEnd = Date.now();
     console.log(`jssearch: Indexing ${1000} files took ${timeEnd - timeStart}ms`);
+    console.log(process.memoryUsage());
+
+    timeStart = Date.now();
+    const asdf = jss.search('Serpent room').slice(0, 10);
+    timeEnd = Date.now();
+    console.log(asdf);
+    console.log(`jssearch: Searching ${1000} files took ${timeEnd - timeStart}ms`);
 }
 
-runBench();
+runBench().then(() => console.log('done'));
