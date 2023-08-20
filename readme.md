@@ -1,5 +1,11 @@
 # Comparison of javascript full text search libraries
 
+# Quick start
+- node 18
+- npm i
+- npm test
+- npm run bench
+
 # which to compare?
 From the list here: https://github.com/nextapps-de/flexsearch#performance-benchmark-ranking
 - flexsearch: yes
