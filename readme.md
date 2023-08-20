@@ -8,12 +8,12 @@
 
 # which to compare?
 From the list here: https://github.com/nextapps-de/flexsearch#performance-benchmark-ranking
-- flexsearch: yes
 - lunr: yes, used by note searcher: https://github.com/olivernn/lunr.js
     - last update 2020...
     - lots of downloads on npm
 - js-search: yep: https://github.com/bvaughn/js-search
 - minisearch: yep: https://github.com/lucaong/minisearch
+- flexsearch: yep, but can't figure out how to use in typescript
 ===========
 - elasticlunr: maybe, abandoned? https://www.npmjs.com/package/elasticlunr
     - last update 2019
@@ -25,8 +25,9 @@ From the list here: https://github.com/nextapps-de/flexsearch#performance-benchm
 - jsii: no, just a prototype
 
 # todo
-- write benchmark using lunr
-- use https://github.com/Zettelkasten-Method/10000-markdown-files
 - add other libs
 - test additional features:
     - add document to index
+
+# maybe
+- compare memory usage?
