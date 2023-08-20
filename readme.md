@@ -7,14 +7,18 @@
 - npm run bench
 
 # todo
-- add all used lunr features to other libs
+- term presence: https://lunrjs.com/guides/searching.html
+    - can this be done in minisearch? how does it work?
+        - argh its gonna be significant. just use two lunr indexes?
+- pass tests for all search libraries
+    - need to implement tags, term presence, more
 - test additional features:
     - add document to index
 
 # maybe
-- js-search: add stemming and stop words
-- js-search and others: reduce memory usage etc by not storing unnecessary data/
-  using unnecessary features. Eg prefix search
+- try stemming and stop words
+- reduce memory usage etc by not storing unnecessary data/ using unnecessary
+  features. Eg prefix search
 - try to get flexsearch working
 
 # which to compare?

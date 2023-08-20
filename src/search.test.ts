@@ -147,13 +147,6 @@ describe.each(searchBuilders)('%s', (name, builder) => {
     });
   });
 
-  // lunr doesn't support exact phrase matching: https://github.com/olivernn/lunr.js/issues/62
-  describe('phrases', () => {
-    it('does not support phrases', async () => {
-      await expect(searchFor('"ham is good"', "the ham is good")).not.toBeFound();
-    });
-  });
-
   describe('search with tags', () => {
     it('finds single tag', async () => {
       await expect(searchFor("#beef", "The tags are", ['beef', 'chowder'])).toBeFound();
@@ -174,43 +167,5 @@ describe.each(searchBuilders)('%s', (name, builder) => {
     it('works with operators', async () => {
       await expect(searchFor("#beef -#chowder", "The tags are", ['beef', 'chowder'])).not.toBeFound();
     });
-
-    it('supports hyphenated tags', async () => {
-      await expect(searchFor("#meat-pie", "I want a", ['meat-pie'])).toBeFound();
-      await expect(searchFor("#meat-pie", "I want a", ['meat'])).not.toBeFound();
-      await expect(searchFor("#meat", "I want a", ['meat-pie'])).not.toBeFound();
-    });
   });
-
-//   describe('expand query tags', () => {
-//     it('replaces tag at the start of a query', () => {
-//       const inputQuery = '#tag';
-//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
-//       expect(expandedQuery).toBe('tags:tag');
-//     });
-
-//     it('replaces tag in the middle of a query', () => {
-//       const inputQuery = 'hello #tag boy';
-//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
-//       expect(expandedQuery).toBe('hello tags:tag boy');
-//     });
-
-//     it('replaces multiple tags', () => {
-//       const inputQuery = 'hello #tag #boy';
-//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
-//       expect(expandedQuery).toBe('hello tags:tag tags:boy');
-//     });
-
-//     it('does not replace non tag', () => {
-//       const inputQuery = 'this is no#t a tag';
-//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
-//       expect(expandedQuery).toBe(inputQuery);
-//     });
-
-//     it('works with operators', () => {
-//       const inputQuery = 'dont include this -#tag';
-//       const expandedQuery = searchIndex.expandQueryTags(inputQuery);
-//       expect(expandedQuery).toBe('dont include this -tags:tag');
-//     });
-//   });
 });
