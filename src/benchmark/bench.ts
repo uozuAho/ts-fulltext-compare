@@ -42,6 +42,9 @@ async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
             const text = fs.readFileSync(mdFile, 'utf8');
             index.indexFile(mdFile, text, []);
         }
+        // quirk: lunr index is only built after the first search runs, so
+        // we run it here
+        await index.search('');
         let timeEnd = Date.now();
         indexTimes.push(timeEnd - timeStart);
         memoryUsages.push(process.memoryUsage().heapUsed);

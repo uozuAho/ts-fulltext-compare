@@ -29,7 +29,8 @@ export class LunrSearch implements IIndex {
   };
 
   public search = (query: string) => {
-    if (!this._index) { return Promise.resolve([]); }
+    if (!this._index) { this.finalise(); }
+    if (!this._index) { throw new Error('Index not built'); }
 
     query = this.expandQueryTags(query);
 
