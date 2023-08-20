@@ -1,6 +1,7 @@
 import MiniSearch from 'minisearch';
+import { IIndex } from '../IIndex';
 
-export class MyMiniSearch {
+export class MyMiniSearch implements IIndex {
     private _index: MiniSearch<any>;
 
     constructor() {
@@ -15,6 +16,6 @@ export class MyMiniSearch {
     }
 
     public search = (query: string) => {
-        return this._index.search(query).map(r => r.path);
+        return Promise.resolve(this._index.search(query).map(r => r.path));
     }
 }

@@ -1,6 +1,7 @@
 import { Search } from 'js-search';
+import { IIndex } from '../IIndex';
 
-export class MyJsSearch {
+export class MyJsSearch implements IIndex {
     private _index: Search;
 
     constructor() {
@@ -14,6 +15,6 @@ export class MyJsSearch {
     }
 
     public search = (query: string) => {
-        return this._index.search(query).map((r: any) => r.path);
+        return Promise.resolve(this._index.search(query).map((r: any) => r.path));
     }
 }

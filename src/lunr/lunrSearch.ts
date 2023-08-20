@@ -1,4 +1,5 @@
 import * as lunr from 'lunr';
+import { IIndex } from '../IIndex';
 
 const NUM_RESULTS = 20;
 
@@ -14,7 +15,7 @@ lunr.tokenizer.separator = /[\s\[\]/]+/;
 // An alternative is to implement my own query parser.
 (lunr as any).QueryLexer.termSeparator = lunr.tokenizer.separator;
 
-export class LunrSearch {
+export class LunrSearch implements IIndex {
   private _index: lunr.Index | null = null;
   private _indexBuilder = this.createIndexBuilder();
 
