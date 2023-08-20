@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@types/lunr": "^2.3.4",
+    "lunr": "^2.3.9",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.1.6"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}
