@@ -13,6 +13,8 @@
 
 # maybe
 - js-search: add stemming and stop words
+- js-search and others: reduce memory usage etc by not storing unnecessary data/
+  using unnecessary features. Eg prefix search
 - try to get flexsearch working
 
 # which to compare?

@@ -33,7 +33,7 @@ class FileAndTags {
   ) {}
 }
 
-describe('lunr full text search', () => {
+describe('lunr', () => {
   let lunrSearch: LunrSearch;
 
   const index = async (files: FileAndTags[]) => {
