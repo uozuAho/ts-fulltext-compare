@@ -1,5 +1,13 @@
 # Comparison of javascript full text search libraries
 
+# Why?
+Lunr doesn't support adding new documents (ie you have to index all files at the
+same time), which is making indexing slow in https://github.com/uozuAho/note_searcher
+
+# Status
+I stopped working on this once I realised none of the libraries I'm considering
+support term presence (eg excluding words).
+
 # Quick start
 - node 18
 - npm i
@@ -7,6 +15,8 @@
 - npm run bench
 
 # todo
+- upon revisit - any new libraries? Does anything support term presence?
+    - eg. exclude words in search
 - term presence: https://lunrjs.com/guides/searching.html
     - can this be done in minisearch? how does it work?
         - argh its gonna be significant. just use two lunr indexes?
