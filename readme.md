@@ -9,10 +9,14 @@ I stopped working on this once I realised none of the libraries I'm considering
 support term presence (eg excluding words).
 
 # Quick start
-- node 18
-- npm i
-- npm test
-- npm run bench
+- use node 18
+
+```sh
+npm i
+npm test
+./get-data.sh
+npm run bench
+```
 
 # todo
 - upon revisit - any new libraries? Does anything support term presence?
