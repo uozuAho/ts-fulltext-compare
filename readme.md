@@ -9,7 +9,7 @@ I stopped working on this once I realised none of the libraries I'm considering
 support term presence (eg excluding words).
 
 # Quick start
-- use node 18
+- use node 22
 
 ```sh
 npm i
@@ -20,6 +20,7 @@ npm run bench
 
 # todo
 - add libsearch tests
+    - fix import error
 - upon revisit - any new libraries? Does anything support term presence?
     - eg. exclude words in search
 - term presence: https://lunrjs.com/guides/searching.html
