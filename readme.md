@@ -19,6 +19,7 @@ npm run bench
 ```
 
 # todo
+- add libsearch tests
 - upon revisit - any new libraries? Does anything support term presence?
     - eg. exclude words in search
 - term presence: https://lunrjs.com/guides/searching.html

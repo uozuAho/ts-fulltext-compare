@@ -7,6 +7,7 @@ import { IIndex } from '../IIndex';
 import { setFlagsFromString } from 'v8';
 import { runInNewContext } from 'vm';
 import { MyMiniSearch } from '../minisearch/myMiniSearch';
+import { MyLibsearch } from '../libsearch/myLibsearch';
 
 type IndexBuilder = () => IIndex;
 
@@ -14,6 +15,7 @@ async function runAll() {
     await timeIndexingFiles('lunr', () => new LunrSearch());
     await timeIndexingFiles('jssearch', () => new MyJsSearch());
     await timeIndexingFiles('minisearch', () => new MyMiniSearch());
+    await timeIndexingFiles('libsearch', () => new MyLibsearch());
 }
 
 async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
