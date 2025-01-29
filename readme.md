@@ -19,8 +19,8 @@ npm run bench
 ```
 
 # todo
-- add libsearch tests
-    - fix import error
+- list requirements
+    - term presence (eg exclude a word)
 - upon revisit - any new libraries? Does anything support term presence?
     - eg. exclude words in search
 - term presence: https://lunrjs.com/guides/searching.html
@@ -38,20 +38,29 @@ npm run bench
 - try to get flexsearch working
 
 # which to compare?
-From the list here: https://github.com/nextapps-de/flexsearch#performance-benchmark-ranking
-
+## yes
 - lunr: yes, used by note searcher: https://github.com/olivernn/lunr.js
-    - last update 2020...
+    - bad: last update 2020...
+    - good: lots of downloads on npm
+    - bad: cannot add/remove docs from index
+## maybe
+- flexsearch
+    - bad: I can't figure out how to use it in typescript
+- elasticlunr: maybe, abandoned? https://www.npmjs.com/package/elasticlunr
+    - last update 2019
     - lots of downloads on npm
+## no
+- libsearch: https://github.com/thesephist/libsearch
+    - bad: no term presence
+    - bad: import error when testing with jest
 - js-search: yep: https://github.com/bvaughn/js-search
+    - bad: no term presence
+    - bad: not maintained?
 - minisearch: yep: https://github.com/lucaong/minisearch
-- flexsearch: I want to, but can't figure out how to use it in typescript
-- no
-    - elasticlunr: maybe, abandoned? https://www.npmjs.com/package/elasticlunr
-        - last update 2019
-        - lots of downloads on npm
-    - wade: maybe, abandoned? https://github.com/kbrsh/wade
-        - last update 2019
-        - not many downloads on npm
-    - bulksearch: no, abandoned? https://github.com/nextapps-de/bulksearch
-    - jsii: no, just a prototype
+    - bad: no term presence
+    - good: can add/remove docs from index
+- wade: maybe, abandoned? https://github.com/kbrsh/wade
+    - last update 2019
+    - not many downloads on npm
+- bulksearch: no, abandoned? https://github.com/nextapps-de/bulksearch
+- jsii: no, just a prototype
