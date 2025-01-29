@@ -49,6 +49,8 @@ npm run bench
 - elasticlunr: maybe, abandoned? https://www.npmjs.com/package/elasticlunr
     - last update 2019
     - lots of downloads on npm
+- [tantivy full text search](https://github.com/quickwit-oss/tantivy)
+    - compile to wasm, then https://code.visualstudio.com/blogs/2024/05/08/wasm
 ## no
 - libsearch: https://github.com/thesephist/libsearch
     - bad: no term presence
