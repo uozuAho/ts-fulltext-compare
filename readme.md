@@ -14,8 +14,26 @@ support term presence (eg excluding words).
 ```sh
 npm i
 npm test
-./get-data.sh
-npm run bench
+./get-data.sh  # optional
+npm run bench <dir with lots of md files>
+```
+
+# My test results
+AMD Ryzen 5 3600
+
+```
+lunr indexing 1000 files 5 times...
+  index time avg: 1522.2ms
+  search time avg: 2.2ms
+  memory usage avg (MB): 296.1
+jssearch indexing 1000 files 5 times...
+  index time avg: 1062.2ms
+  search time avg: 1ms
+  memory usage avg (MB): 428.1
+minisearch indexing 1000 files 5 times...
+  index time avg: 481.8ms
+  search time avg: 1.2ms
+  memory usage avg (MB): 189.7
 ```
 
 # todo

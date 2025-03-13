@@ -7,18 +7,27 @@ import { IIndex } from '../IIndex';
 import { setFlagsFromString } from 'v8';
 import { runInNewContext } from 'vm';
 import { MyMiniSearch } from '../minisearch/myMiniSearch';
-import { MyLibsearch } from '../libsearch/myLibsearch';
 
 type IndexBuilder = () => IIndex;
 
-async function runAll() {
-    await timeIndexingFiles('lunr', () => new LunrSearch());
-    await timeIndexingFiles('jssearch', () => new MyJsSearch());
-    await timeIndexingFiles('minisearch', () => new MyMiniSearch());
-    await timeIndexingFiles('libsearch', () => new MyLibsearch());
+async function runAll(filesDir: string) {
+    await timeIndexingFiles('lunr', () => new LunrSearch(), filesDir);
+    await timeIndexingFiles('jssearch', () => new MyJsSearch(), filesDir);
+    await timeIndexingFiles('minisearch', () => new MyMiniSearch(), filesDir);
 }
 
-async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
+function files(dir: string, numfiles: number) {
+    return glob
+        .sync(`${dir}/*.md`)
+        .map(f => path.resolve(dir, f))
+        .slice(0, numfiles);
+}
+
+async function timeIndexingFiles(
+    name: string,
+    buildIndex: IndexBuilder,
+    filesDir: string
+) {
     let index: IIndex | undefined;
     const numRuns = 5;
     const numFilesToIndex = 1000;
@@ -34,10 +43,7 @@ async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
         forceGc();
         index = buildIndex();
 
-        const mdFiles = glob
-            .sync('../../data/10000files/10000 markdown files/*.md', { cwd: __dirname })
-            .map(f => path.resolve(`${__dirname}/${f}`))
-            .slice(0, numFilesToIndex);
+        const mdFiles = files(filesDir, numFilesToIndex);
 
         let timeStart = Date.now();
         for (const mdFile of mdFiles) {
@@ -63,7 +69,7 @@ async function timeIndexingFiles(name: string, buildIndex: IndexBuilder) {
 
     console.log(`  index time avg: ${indexTimeAvg}ms`);
     console.log(`  search time avg: ${searchTimeAvg}ms`);
-    console.log(`  memory usage avg: ${memoryUsageAvg / 1024 / 1024}MB`);
+    console.log(`  memory usage avg (MB): ${(memoryUsageAvg / 1024 / 1024).toFixed(1)}`);
 }
 
 function forceGc() {
@@ -73,4 +79,6 @@ function forceGc() {
 
 setFlagsFromString('--expose_gc');
 
-runAll().then(() => console.log('done'));
+
+const dir = process.argv[process.argv.length - 1];
+runAll(dir).then(() => console.log('done'));
