@@ -87,9 +87,28 @@ describe.each(searchBuilders)('%s', (name, builder) => {
     await expect(searchFor("pizza", "the ham is good")).not.toBeFound();
   });
 
-  it('findsStemmedWord', async () => {
-    await expect(searchFor("bike", "I own several bikes")).toBeFound();
-  });
+  describe('stemming', () => {
+      it('simple', async () => {
+        await expect(searchFor("bike", "I own several bikes")).toBeFound();
+      });
+
+      it('libraries', async () => {
+        await expect(searchFor("library", "libraries")).toBeFound();
+      });
+
+      // it seems lunr doesn't stem -like
+      it.skip('catlike', async () => {
+        await expect(searchFor("cat", "catlike")).toBeFound();
+      });
+
+      it('fishing', async () => {
+        await expect(searchFor("fish", "fishing")).toBeFound();
+      });
+
+      it('argue arguing', async () => {
+        await expect(searchFor("argue", "arguing")).toBeFound();
+      });
+  })
 
   it('finds word before slash', async () => {
     await expect(searchFor("red", "red/green/refactor")).toBeFound();
