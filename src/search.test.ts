@@ -1,4 +1,4 @@
-import { IIndexedFts } from './interfaces';
+import { IIndexedFts, IIndexlessFts, isIndexedFts } from './interfaces';
 import { MyJsSearch } from './jssearch/myJsSearch';
 import { LunrSearch } from './lunr/lunrSearch';
 import { MyMiniSearch } from './minisearch/myMiniSearch';
@@ -36,7 +36,7 @@ class FileAndTags {
   ) {}
 }
 
-type SearchBuilder = () => IIndexedFts;
+type SearchBuilder = () => IIndexedFts | IIndexlessFts;
 type SearchBuilderTuple = [string, SearchBuilder];
 
 const searchBuilders: SearchBuilderTuple[] = [
@@ -48,23 +48,29 @@ const searchBuilders: SearchBuilderTuple[] = [
 ];
 
 describe.each(searchBuilders)('%s', (name, builder) => {
-  let searchIndex: IIndexedFts;
+  let fts: IIndexedFts | IIndexlessFts;
 
   const index = async (files: FileAndTags[]) => {
-    searchIndex = builder();
-    for (const file of files) {
-      searchIndex.indexFile(file.path, file.text, file.tags);
+    fts = builder();
+
+    if (isIndexedFts(fts)) {
+      for (const file of files) {
+        fts.indexFile(file.path, file.text, file.tags);
+      }
     }
   };
 
   const searchFor = async (query: string, text: string, tags: string[] = []) => {
-    await index([new FileAndTags(aTextFilePath, text, tags)]);
-
-    return searchIndex.search(query);
+    if (isIndexedFts(fts)) {
+        await index([new FileAndTags(aTextFilePath, text, tags)]);
+        return fts.search(query);
+    } else {
+        return fts.search(text, query);
+    }
   };
 
   beforeEach(() => {
-    searchIndex = new LunrSearch();
+    fts = new LunrSearch();
   });
 
   it('index and search example', async () => {
@@ -73,10 +79,11 @@ describe.each(searchBuilders)('%s', (name, builder) => {
       new FileAndTags('a/b/c.log', 'what about shoes and biscuits'),
     ]);
 
-    const results = await searchIndex.search('blah');
-
-    expect(results.length).toBe(1);
-    expect(results[0]).toBe('a/b.txt');
+    if (isIndexedFts(fts)) {
+        const results = await fts.search('blah');
+        expect(results.length).toBe(1);
+        expect(results[0]).toBe('a/b.txt');
+    }
   });
 
   it('findsSingleWord', async () => {
