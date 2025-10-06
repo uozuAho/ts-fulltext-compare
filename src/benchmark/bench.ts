@@ -3,12 +3,12 @@ import { glob } from 'glob';
 import path from 'path';
 import fs from 'fs';
 import { MyJsSearch } from '../jssearch/myJsSearch';
-import { IIndexedFts } from '../interfaces';
+import { IIndexedFts, IIndexlessFts, isIndexedFts } from '../interfaces';
 import { setFlagsFromString } from 'v8';
 import { runInNewContext } from 'vm';
 import { MyMiniSearch } from '../minisearch/myMiniSearch';
 
-type IndexBuilder = () => IIndexedFts;
+type FtsBuilder = () => IIndexedFts | IIndexlessFts;
 
 async function runAll(filesDir: string) {
     await benchmark('lunr', () => new LunrSearch(), filesDir);
@@ -29,12 +29,12 @@ function files(dir: string, numfiles: number) {
 
 async function benchmark(
     name: string,
-    buildIndex: IndexBuilder,
+    buildFts: FtsBuilder,
     filesDir: string
 ) {
-    let index: IIndexedFts | undefined;
+    let fts: IIndexedFts | IIndexlessFts | undefined;
     const numRuns = 5;
-    const numFilesToIndex = 1000;
+    const numFilesToIndex = 100;
 
     const indexTimes: number[] = [];
     const searchTimes: number[] = [];
@@ -43,26 +43,33 @@ async function benchmark(
     console.log(`${name} indexing ${numFilesToIndex} files ${numRuns} times...`);
 
     for (let i = 0; i < numRuns; i++) {
-        index = undefined;
+        fts = undefined;
         forceGc();
-        index = buildIndex();
+        fts = buildFts();
 
         const mdFiles = files(filesDir, numFilesToIndex);
 
         let timeStart = Date.now();
-        for (const mdFile of mdFiles) {
-            const text = fs.readFileSync(mdFile, 'utf8');
-            index.indexFile(mdFile, text, []);
+        if (isIndexedFts(fts)) {
+            for (const mdFile of mdFiles) {
+                const text = fs.readFileSync(mdFile, 'utf8');
+                fts.indexFile(mdFile, text, []);
+            }
         }
         // quirk: lunr index is only built after the first search runs, so
         // we run it here
-        await index.search('');
+        if (isIndexedFts(fts)) {
+            await fts.search('');
+        }
         let timeEnd = Date.now();
         indexTimes.push(timeEnd - timeStart);
         memoryUsages.push(process.memoryUsage().heapUsed);
 
         timeStart = Date.now();
-        const results = (await index.search('Serpent room')).slice(0, 10);
+        const query = 'Serpent room';
+        const results = isIndexedFts(fts)
+            ? (await fts.search(query)).slice(0, 10)
+            : (await fts.searchPath(filesDir, query)).slice(0, 10);
         timeEnd = Date.now();
         searchTimes.push(timeEnd - timeStart);
     }
