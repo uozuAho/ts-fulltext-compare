@@ -96,7 +96,7 @@ describe.each(searchBuilders)('%s', (name, builder) => {
         await expect(searchFor("library", "libraries")).toBeFound();
       });
 
-      // it seems lunr doesn't stem -like
+      // lunr doesn't stem -like
       it.skip('catlike', async () => {
         await expect(searchFor("cat", "catlike")).toBeFound();
       });
@@ -108,7 +108,13 @@ describe.each(searchBuilders)('%s', (name, builder) => {
       it('argue arguing', async () => {
         await expect(searchFor("argue", "arguing")).toBeFound();
       });
-  })
+  });
+
+  describe('stop words', () => {
+    it('are not included in search', async () => {
+        await expect(searchFor("it and", "I saw it and ate chips")).not.toBeFound();
+    });
+  });
 
   it('finds word before slash', async () => {
     await expect(searchFor("red", "red/green/refactor")).toBeFound();

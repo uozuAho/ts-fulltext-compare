@@ -37,23 +37,18 @@ minisearch indexing 1000 files 5 times...
 ```
 
 # todo
-- list requirements
-    - term presence (eg exclude a word)
 - upon revisit - any new libraries? Does anything support term presence?
     - eg. exclude words in search
-- term presence: https://lunrjs.com/guides/searching.html
-    - can this be done in minisearch? how does it work?
-        - argh its gonna be significant. just use two lunr indexes?
-- pass tests for all search libraries
-    - need to implement tags, term presence, more
 - test additional features:
     - add document to index
 
-# maybe
-- try stemming and stop words
-- reduce memory usage etc by not storing unnecessary data/ using unnecessary
-  features. Eg prefix search
-- try to get flexsearch working
+# requirements
+For https://github.com/uozuAho/note_searcher
+- incremental indexing (or no indexing)
+- stemming
+- filter stop words
+- term presence
+
 
 # which to compare?
 ## yes
