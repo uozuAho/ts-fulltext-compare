@@ -14,8 +14,8 @@ support term presence (eg excluding words).
 ```sh
 npm i
 npm test
-./get-data.sh  # optional
-npm run bench <dir with lots of md files>
+./get-bench-data.sh                     # optional
+npm run bench ./data/md10000/files      # run with above data
 ```
 
 # My test results
