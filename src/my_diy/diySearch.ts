@@ -1,7 +1,7 @@
 import { IIndexlessFts } from "../interfaces";
 
 export class MyDiySearch implements IIndexlessFts {
-    public search = (text: string, query: string) => {
+    public searchText = (text: string, query: string) => {
         let queryTerms = query.split(' ');
 
         let mustIncludeTerms = queryTerms

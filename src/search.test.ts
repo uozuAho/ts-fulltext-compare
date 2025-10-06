@@ -67,7 +67,7 @@ describe.each(searchBuilders)('%s', (name, builder) => {
         await index([new FileAndTags(aTextFilePath, text, tags)]);
         return fts.search(query);
     } else {
-        return fts.search(text, query);
+        return fts.searchText(text, query);
     }
   };
 
