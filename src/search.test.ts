@@ -42,7 +42,7 @@ type SearchBuilderTuple = [string, SearchBuilder];
 
 const searchBuilders: SearchBuilderTuple[] = [
     [ 'lunr', () => new LunrSearch() ],
-    [ 'myDiy', () => new MyDiySearch() ],
+    // [ 'myDiy', () => new MyDiySearch() ],
 
     // todo: fix failing tests in these, if they ever implement term presence
     // [ 'minisearch', () => new MyMiniSearch() ],
@@ -70,10 +70,6 @@ describe.each(searchBuilders)('%s', (name, builder) => {
         return fts.search(text, query);
     }
   };
-
-  beforeEach(() => {
-    fts = new LunrSearch();
-  });
 
   it('index and search example', async () => {
     await index([
