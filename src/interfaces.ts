@@ -4,7 +4,7 @@ export interface IIndexedFts {
 }
 
 export interface IIndexlessFts {
-    // todo: add ability to search all files
+    searchPath: (path: string, query: string) => Promise<string[]>;
     searchText: (text: string, query: string) => Promise<string[]>;
 }
 

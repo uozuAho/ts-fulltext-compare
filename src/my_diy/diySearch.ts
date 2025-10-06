@@ -1,6 +1,21 @@
 import { IIndexlessFts } from "../interfaces";
+import { glob } from 'glob';
+import fs from 'fs';
 
 export class MyDiySearch implements IIndexlessFts {
+    public searchPath = async (path: string, query: string) => {
+        const files = glob.sync(`${path}/*.md`);
+        const results = [];
+        for (const file of files) {
+            const text = fs.readFileSync(file, 'utf8');
+            const r = await this.searchText(text, query);
+            if (r.length > 0) {
+                results.push(file);
+            }
+        }
+        return results;
+    };
+
     public searchText = (text: string, query: string) => {
         let queryTerms = query.split(' ');
 
