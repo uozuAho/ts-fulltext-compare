@@ -14,7 +14,8 @@ export class MyDiySearch implements IIndexlessFts {
 
         let plainTerms = queryTerms
             .filter(t => !t.startsWith("+") && !t.startsWith("-"))
-            .filter(t => !isStopWord(t));
+            .filter(t => !isStopWord(t))
+            .map(t => crappyStem(t));
 
         for (const term of mustNotIncludeTerms) {
             if (text.includes(term)) {
@@ -42,6 +43,16 @@ export class MyDiySearch implements IIndexlessFts {
 
         return Promise.resolve([]);
     }
+}
+
+function crappyStem(word: string) {
+    if (word.endsWith('ing') || word.endsWith('ies')) {
+        return word.substring(0, word.length - 3);
+    }
+    if (word.endsWith('e') || word.endsWith('y')) {
+        return word.substring(0, word.length - 1);
+    }
+    return word;
 }
 
 let _stopwordMap: Set<string>;
