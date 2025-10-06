@@ -11,19 +11,23 @@ import { MyMiniSearch } from '../minisearch/myMiniSearch';
 type IndexBuilder = () => IIndexedFts;
 
 async function runAll(filesDir: string) {
-    await timeIndexingFiles('lunr', () => new LunrSearch(), filesDir);
-    await timeIndexingFiles('jssearch', () => new MyJsSearch(), filesDir);
-    await timeIndexingFiles('minisearch', () => new MyMiniSearch(), filesDir);
+    await benchmark('lunr', () => new LunrSearch(), filesDir);
+
+    // don't really care about these: they don't have the features i want
+    // await benchmark('jssearch', () => new MyJsSearch(), filesDir);
+    // await benchmark('minisearch', () => new MyMiniSearch(), filesDir);
 }
 
 function files(dir: string, numfiles: number) {
+    const absDir = path.resolve(dir);
+
     return glob
-        .sync(`${dir}/*.md`)
-        .map(f => path.resolve(dir, f))
+        .sync(`${absDir}/*.md`)
+        .map(f => path.resolve(absDir, f))
         .slice(0, numfiles);
 }
 
-async function timeIndexingFiles(
+async function benchmark(
     name: string,
     buildIndex: IndexBuilder,
     filesDir: string
@@ -79,6 +83,9 @@ function forceGc() {
 
 setFlagsFromString('--expose_gc');
 
-
-const dir = process.argv[process.argv.length - 1];
+if (process.argv.length < 3) {
+    console.error("Gimme a dir with text files");
+    process.exit(1);
+}
+const dir = process.argv[2];
 runAll(dir).then(() => console.log('done'));
