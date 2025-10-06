@@ -42,7 +42,7 @@ type SearchBuilderTuple = [string, SearchBuilder];
 
 const searchBuilders: SearchBuilderTuple[] = [
     [ 'lunr', () => new LunrSearch() ],
-    // [ 'myDiy', () => new MyDiySearch() ],
+    [ 'myDiy', () => new MyDiySearch() ],
 
     // todo: fix failing tests in these, if they ever implement term presence
     // [ 'minisearch', () => new MyMiniSearch() ],

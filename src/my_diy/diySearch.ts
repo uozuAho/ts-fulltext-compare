@@ -17,19 +17,19 @@ export class MyDiySearch implements IIndexlessFts {
 
         for (const term of mustIncludeTerms) {
             if (!text.includes(term)) {
-                Promise.resolve([]);
+                return Promise.resolve([]);
             }
         }
 
         for (const term of mustNotIncludeTerms) {
             if (text.includes(term)) {
-                Promise.resolve([]);
+                return Promise.resolve([]);
             }
         }
 
         for (const term of plainTerms) {
             if (text.includes(term)) {
-                Promise.resolve(["dummyPath"]);
+                return Promise.resolve(["dummyPath"]);
             }
         }
 
