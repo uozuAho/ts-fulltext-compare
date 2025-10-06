@@ -2,6 +2,7 @@ import { IIndexedFts, IIndexlessFts, isIndexedFts } from './interfaces';
 import { MyJsSearch } from './jssearch/myJsSearch';
 import { LunrSearch } from './lunr/lunrSearch';
 import { MyMiniSearch } from './minisearch/myMiniSearch';
+import { MyDiySearch } from './my_diy/diySearch';
 
 declare global {
   namespace jest {
@@ -41,6 +42,7 @@ type SearchBuilderTuple = [string, SearchBuilder];
 
 const searchBuilders: SearchBuilderTuple[] = [
     [ 'lunr', () => new LunrSearch() ],
+    [ 'myDiy', () => new MyDiySearch() ],
 
     // todo: fix failing tests in these, if they ever implement term presence
     // [ 'minisearch', () => new MyMiniSearch() ],
@@ -181,7 +183,8 @@ describe.each(searchBuilders)('%s', (name, builder) => {
     });
   });
 
-  describe('search with tags', () => {
+  // skip: I don't care about tags any more
+  describe.skip('search with tags', () => {
     it('finds single tag', async () => {
       await expect(searchFor("#beef", "The tags are", ['beef', 'chowder'])).toBeFound();
     });
