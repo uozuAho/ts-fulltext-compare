@@ -1,7 +1,7 @@
 import { Search } from 'js-search';
-import { IIndex } from '../IIndex';
+import { IIndexedFts } from '../interfaces';
 
-export class MyJsSearch implements IIndex {
+export class MyJsSearch implements IIndexedFts {
     private _index: Search;
 
     constructor() {

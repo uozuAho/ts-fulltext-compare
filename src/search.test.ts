@@ -1,4 +1,4 @@
-import { IIndex } from './IIndex';
+import { IIndexedFts } from './interfaces';
 import { MyJsSearch } from './jssearch/myJsSearch';
 import { LunrSearch } from './lunr/lunrSearch';
 import { MyMiniSearch } from './minisearch/myMiniSearch';
@@ -36,7 +36,7 @@ class FileAndTags {
   ) {}
 }
 
-type SearchBuilder = () => IIndex;
+type SearchBuilder = () => IIndexedFts;
 type SearchBuilderTuple = [string, SearchBuilder];
 
 const searchBuilders: SearchBuilderTuple[] = [
@@ -48,7 +48,7 @@ const searchBuilders: SearchBuilderTuple[] = [
 ];
 
 describe.each(searchBuilders)('%s', (name, builder) => {
-  let searchIndex: IIndex;
+  let searchIndex: IIndexedFts;
 
   const index = async (files: FileAndTags[]) => {
     searchIndex = builder();

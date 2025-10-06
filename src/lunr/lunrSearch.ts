@@ -1,5 +1,5 @@
 import * as lunr from 'lunr';
-import { IIndex } from '../IIndex';
+import { IIndexedFts } from '../interfaces';
 
 const NUM_RESULTS = 20;
 
@@ -15,7 +15,7 @@ lunr.tokenizer.separator = /[\s\[\]/]+/;
 // An alternative is to implement my own query parser.
 (lunr as any).QueryLexer.termSeparator = lunr.tokenizer.separator;
 
-export class LunrSearch implements IIndex {
+export class LunrSearch implements IIndexedFts {
   private _index: lunr.Index | null = null;
   private _indexBuilder = this.createIndexBuilder();
 

@@ -3,12 +3,12 @@ import { glob } from 'glob';
 import path from 'path';
 import fs from 'fs';
 import { MyJsSearch } from '../jssearch/myJsSearch';
-import { IIndex } from '../IIndex';
+import { IIndexedFts } from '../interfaces';
 import { setFlagsFromString } from 'v8';
 import { runInNewContext } from 'vm';
 import { MyMiniSearch } from '../minisearch/myMiniSearch';
 
-type IndexBuilder = () => IIndex;
+type IndexBuilder = () => IIndexedFts;
 
 async function runAll(filesDir: string) {
     await timeIndexingFiles('lunr', () => new LunrSearch(), filesDir);
@@ -28,7 +28,7 @@ async function timeIndexingFiles(
     buildIndex: IndexBuilder,
     filesDir: string
 ) {
-    let index: IIndex | undefined;
+    let index: IIndexedFts | undefined;
     const numRuns = 5;
     const numFilesToIndex = 1000;
 

@@ -1,7 +1,7 @@
 import MiniSearch from 'minisearch';
-import { IIndex } from '../IIndex';
+import { IIndexedFts } from '../interfaces';
 
-export class MyMiniSearch implements IIndex {
+export class MyMiniSearch implements IIndexedFts {
     private _index: MiniSearch<any>;
     private _id = 0;
 
