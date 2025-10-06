@@ -26,6 +26,13 @@ lunr indexing 1000 files 5 times...
   index time avg: 1522.2ms
   search time avg: 2.2ms
   memory usage avg (MB): 296.1
+myDiy indexing 1000 files 5 times... <--- todo: reword this. myDiy doesn't use an index
+  index time avg: 0ms
+  search time avg: 130ms             <--- well I'll be darned. This searches 10k files much faster than lunr can index 1k
+  memory usage avg (MB): 153.4
+
+
+don't care about these, they don't have the features I want:
 jssearch indexing 1000 files 5 times...
   index time avg: 1062.2ms
   search time avg: 1ms
