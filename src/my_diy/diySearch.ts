@@ -3,9 +3,11 @@ import { glob } from 'glob';
 import fs from 'fs';
 
 class DocStats {
+    public AvgDocLen = 0;
+
     // path: term: count
-    _termCounts: Map<string, Map<string, number>> = new Map();
-    _docLens: Map<string, number> = new Map();
+    private _termCounts: Map<string, Map<string, number>> = new Map();
+    private _docLens: Map<string, number> = new Map();
 
     public docPaths() {
         return this._termCounts.keys();
@@ -96,21 +98,21 @@ export class MyDiySearch implements IIndexlessFts {
 
         const query = parseQuery(queryStr);
 
-        var { docLenSum, potentialDocs } = buildDocCounts(docs, query);
-        const avgDocLen2 = docLenSum / docs.length;
+        var docStats = buildDocStats(docs, query);
 
         const N = docs.length;
-        const paths = Array.from(potentialDocs.docPaths());
+        const paths = Array.from(docStats.docPaths());
         const myScores: number[] = [];
+
         for (const path of paths) {
             let score = 0;
             const myTerms = query.mustHave.concat(query.other);
             for (const term of myTerms) {
-                const f = potentialDocs.docTermCount(path, term);
+                const f = docStats.docTermCount(path, term);
                 if (f === 0) continue;
-                const df = potentialDocs.numDocsContaining(term);
+                const df = docStats.numDocsContaining(term);
                 const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
-                const denom = f + k1 * (1 - b + b * (potentialDocs.docLen(path) / avgDocLen2));
+                const denom = f + k1 * (1 - b + b * (docStats.docLen(path) / docStats.AvgDocLen));
                 score += idf * (f * (k1 + 1)) / denom;
             }
             myScores.push(score);
@@ -125,14 +127,14 @@ export class MyDiySearch implements IIndexlessFts {
     }
 }
 
-function buildDocCounts(docs: IDocument[], query: Query) {
+function buildDocStats(docs: IDocument[], query: Query) {
     const stats = new DocStats();
     let docLenSum = 0;
+
     for (const doc of docs) {
         docLenSum += doc.text.length;
         let excludeDoc = false;
         for (const term of query.mustHave) {
-            // todo: perf: build these regexes once
             const regex = new RegExp(`${term}`, 'g');
             const count = (doc.text.match(regex) || []).length;
             if (count > 0) {
@@ -157,7 +159,6 @@ function buildDocCounts(docs: IDocument[], query: Query) {
             break;
         }
         for (const term of query.other) {
-            // todo: perf: build these regexes once
             const regex = new RegExp(`${term}`, 'g');
             const count = (doc.text.match(regex) || []).length;
             if (count > 0) {
@@ -168,7 +169,9 @@ function buildDocCounts(docs: IDocument[], query: Query) {
             stats.setDocLen(doc.path, doc.text.length);
         }
     }
-    return { docLenSum, potentialDocs: stats };
+    stats.AvgDocLen = docLenSum / docs.length;
+
+    return stats;
 }
 
 function crappyStem(word: string) {
