@@ -150,50 +150,6 @@ export class MyDiySearch implements IIndexlessFts {
 
         return myRanked;
     }
-
-    public searchText = (text: string, query: string) => {
-        let queryTerms = query.split(' ');
-
-        let mustIncludeTerms = queryTerms
-            .filter(t => t.startsWith("+"))
-            .map(t => t.substring(1));
-
-        let mustNotIncludeTerms = queryTerms
-            .filter(t => t.startsWith("-"))
-            .map(t => t.substring(1));
-
-        let plainTerms = queryTerms
-            .filter(t => !t.startsWith("+") && !t.startsWith("-"))
-            .filter(t => !isStopWord(t))
-            .map(t => crappyStem(t));
-
-        for (const term of mustNotIncludeTerms) {
-            if (text.includes(term)) {
-                return Promise.resolve([]);
-            }
-        }
-
-        for (const term of mustIncludeTerms) {
-            if (!text.includes(term)) {
-                return Promise.resolve([]);
-            }
-        }
-
-        let foundAnyPlainTerms = false;
-        for (const term of plainTerms) {
-            if (text.includes(term)) {
-                foundAnyPlainTerms = true;
-                break;
-            }
-        }
-
-        if (mustIncludeTerms.length > 0 || foundAnyPlainTerms) {
-            return Promise.resolve(["dummyPath"]);
-        }
-
-        // todo: this function doesn't need to be async
-        return Promise.resolve([]);
-    }
 }
 
 function crappyStem(word: string) {
