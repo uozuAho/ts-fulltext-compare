@@ -55,6 +55,30 @@ class DocCounts {
     }
 }
 
+class Query {
+    constructor(
+        public mustHave: string[],
+        public exclude: string[],
+        public other: string[]
+    ) {}
+}
+
+function parseQuery(query: string) {
+    let queryTerms2 = query.split(' ');
+    let mustIncludeTerms = queryTerms2
+        .filter(t => t.startsWith("+"))
+        .map(t => t.substring(1));
+    let mustNotIncludeTerms = queryTerms2
+        .filter(t => t.startsWith("-"))
+        .map(t => t.substring(1));
+    let plainTerms = queryTerms2
+        .filter(t => !t.startsWith("+") && !t.startsWith("-"))
+        .filter(t => !isStopWord(t))
+        .map(t => crappyStem(t));
+
+    return new Query(mustIncludeTerms, mustNotIncludeTerms, plainTerms);
+}
+
 export class MyDiySearch implements IIndexlessFts {
     public searchPath = async (path: string, query: string) => {
         const files = glob.sync(`${path}/*.md`);
@@ -66,28 +90,18 @@ export class MyDiySearch implements IIndexlessFts {
         return this.searchDocs(docs, query);
     };
 
-    public searchDocs = async (docs: IDocument[], query: string) => {
+    public searchDocs = async (docs: IDocument[], queryStr: string) => {
         const k1 = 1.5;
         const b = 0.75;
 
-        let queryTerms2 = query.split(' ');
-        let mustIncludeTerms = queryTerms2
-            .filter(t => t.startsWith("+"))
-            .map(t => t.substring(1));
-        let mustNotIncludeTerms = queryTerms2
-            .filter(t => t.startsWith("-"))
-            .map(t => t.substring(1));
-        let plainTerms = queryTerms2
-            .filter(t => !t.startsWith("+") && !t.startsWith("-"))
-            .filter(t => !isStopWord(t))
-            .map(t => crappyStem(t));
+        const query = parseQuery(queryStr);
 
         const potentialDocs = new DocCounts();
         let docLenSum = 0;
         for (const doc of docs) {
             docLenSum += doc.text.length;
             let excludeDoc = false;
-            for (const term of mustIncludeTerms) {
+            for (const term of query.mustHave) {
                 // todo: perf: build these regexes once
                 const regex = new RegExp(`${term}`, 'g');
                 const count = (doc.text.match(regex) || []).length;
@@ -102,7 +116,7 @@ export class MyDiySearch implements IIndexlessFts {
             if (excludeDoc) {
                 break;
             }
-            for (const term of mustNotIncludeTerms) {
+            for (const term of query.exclude) {
                 if (doc.text.includes(term)) {
                     potentialDocs.removeDoc(doc.path);
                     excludeDoc = true;
@@ -112,7 +126,7 @@ export class MyDiySearch implements IIndexlessFts {
             if (excludeDoc) {
                 break;
             }
-            for (const term of plainTerms) {
+            for (const term of query.other) {
                 // todo: perf: build these regexes once
                 const regex = new RegExp(`${term}`, 'g');
                 const count = (doc.text.match(regex) || []).length;
@@ -131,7 +145,7 @@ export class MyDiySearch implements IIndexlessFts {
         const myScores: number[] = [];
         for (const path of paths) {
             let score = 0;
-            const myTerms = mustIncludeTerms.concat(plainTerms);
+            const myTerms = query.mustHave.concat(query.other);
             for (const term of myTerms) {
                 const f = potentialDocs.docTermCount(path, term);
                 if (f === 0) continue;
