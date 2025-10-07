@@ -3,9 +3,14 @@ export interface IIndexedFts {
     search: (query: string) => Promise<string[]>;
 }
 
+export interface IDocument {
+    path: string;
+    text: string;
+}
+
 export interface IIndexlessFts {
     searchPath: (path: string, query: string) => Promise<string[]>;
-    searchText: (text: string, query: string) => Promise<string[]>;
+    searchDocs: (docs: IDocument[], query: string) => Promise<string[]>;
 }
 
 export function isIndexedFts(fts: IIndexedFts | IIndexlessFts) {

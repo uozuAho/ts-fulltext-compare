@@ -32,17 +32,21 @@ function files(dir: string, numfiles: number) {
 async function benchmark(
     name: string,
     buildFts: FtsBuilder,
-    filesDir: string
+    filesDir: string,
+    numRuns: number = 5
 ) {
     let fts: IIndexedFts | IIndexlessFts | undefined;
-    const numRuns = 5;
-    const numFilesToIndex = 1000;
+    const numFilesToIndex = 100;
 
     const indexTimes: number[] = [];
     const searchTimes: number[] = [];
     const memoryUsages: number[] = [];
 
-    console.log(`${name} indexing ${numFilesToIndex} files ${numRuns} times...`);
+    if (isIndexedFts(buildFts())) {
+        console.log(`${name} indexing ${numFilesToIndex} files & searching ${numRuns} times...`);
+    } else {
+        console.log(`${name} searching all files under ${filesDir} ${numRuns} times...`);
+    }
 
     for (let i = 0; i < numRuns; i++) {
         fts = undefined;

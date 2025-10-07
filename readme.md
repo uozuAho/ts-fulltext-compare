@@ -16,6 +16,8 @@ npm i
 npm test
 ./get-bench-data.sh                     # optional
 npm run bench ./data/md10000/files      # run with above data
+npm run bench-profile                   # profile the benchmark. must have above data
+                                        # drag profile_output.json into https://mapbox.github.io/flamebearer/#
 ```
 
 # My test results
