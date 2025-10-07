@@ -2,6 +2,59 @@ import { IDocument, IIndexlessFts } from "../interfaces";
 import { glob } from 'glob';
 import fs from 'fs';
 
+class DocCounts {
+    // path: term: count
+    _termCounts: Map<string, Map<string, number>> = new Map();
+    _docLens: Map<string, number> = new Map();
+
+    public docPaths() {
+        return this._termCounts.keys();
+    }
+
+    public docTermCount(path: string, term: string) {
+        return this._termCounts.get(path)?.get(term) || 0;
+    }
+
+    public containsDoc(path: string) {
+        return this._termCounts.get(path) != undefined;
+    }
+
+    public numDocsContaining(term: string) {
+        // todo: perf: store this count on addCount
+        let count = 0;
+        for (const [_, counts] of this._termCounts.entries()) {
+            if (counts.has(term)) {
+                count += 1;
+            }
+        }
+        return count;
+    }
+
+    public addTermCount(doc: string, term: string, count: number) {
+        if (!this._termCounts.has(doc)) {
+            this._termCounts.set(doc, new Map());
+        }
+        const counts = this._termCounts.get(doc);
+        counts?.set(term, (counts.get(term) || 0) + count);
+    }
+
+    public removeDoc(path: string) {
+        this._termCounts.delete(path);
+    }
+
+    public setDocLen(path: string, len: number) {
+        this._docLens.set(path, len);
+    }
+
+    public docLen(path: string) {
+        const len = this._docLens.get(path);
+        if (len === undefined) {
+            throw new Error(`doc len not stored: ${path}`);
+        }
+        return len;
+    }
+}
+
 export class MyDiySearch implements IIndexlessFts {
     public searchPath = async (path: string, query: string) => {
         const files = glob.sync(`${path}/*.md`);
@@ -13,11 +66,24 @@ export class MyDiySearch implements IIndexlessFts {
         return this.searchDocs(docs, query);
     };
 
-    // todo: BM25 implemented by chatGPT. passes tests ... is it slow?
+    // todo: BM25 implemented by chatGPT. passes tests ... but is slow
     public searchDocs = async (docs: IDocument[], query: string) => {
-        // BM25 parameters
         const k1 = 1.5;
         const b = 0.75;
+
+        // MYCODE START -------------------
+        let queryTerms2 = query.split(' ');
+        let mustIncludeTerms = queryTerms2
+            .filter(t => t.startsWith("+"))
+            .map(t => t.substring(1));
+        let mustNotIncludeTerms = queryTerms2
+            .filter(t => t.startsWith("-"))
+            .map(t => t.substring(1));
+        let plainTerms = queryTerms2
+            .filter(t => !t.startsWith("+") && !t.startsWith("-"))
+            .filter(t => !isStopWord(t))
+            .map(t => crappyStem(t));
+        // MYCODE END -------------------
 
         // Preprocess query terms (use same stemming/stopword logic as searchText)
         let queryTerms = query.split(' ')
@@ -26,7 +92,48 @@ export class MyDiySearch implements IIndexlessFts {
             .map(t => crappyStem(t));
         if (queryTerms.length === 0) return [];
 
-        // Build document term frequencies and lengths
+        // MYCODE START -------------------
+        // path: term: count
+        const potentialDocs = new DocCounts();
+        let docLenSum = 0;
+        for (const doc of docs) {
+            docLenSum += doc.text.length;
+            for (const term of mustIncludeTerms) {
+                // todo: perf: build these regexes once
+                const regex = new RegExp(`${term}`, 'g');
+                const count = (doc.text.match(regex) || []).length;
+                if (count > 0) {
+                    potentialDocs.addTermCount(doc.path, term, count);
+                } else {
+                    // todo: prolly need to stop searching here
+                    potentialDocs.removeDoc(doc.path);
+                    break;
+                }
+            }
+            for (const term of mustNotIncludeTerms) {
+                if (doc.text.includes(term)) {
+                    potentialDocs.removeDoc(doc.path);
+                    // todo: prolly need to stop searching here
+                    break;
+                }
+            }
+            for (const term of plainTerms) {
+                // todo: perf: build these regexes once
+                const regex = new RegExp(`${term}`, 'g');
+                const count = (doc.text.match(regex) || []).length;
+                if (count > 0) {
+                    potentialDocs.addTermCount(doc.path, term, count);
+                }
+            }
+            if (potentialDocs.containsDoc(doc.path)) {
+                potentialDocs.setDocLen(doc.path, doc.text.length);
+            }
+        }
+        const avgDocLen2 = docLenSum / docs.length;
+        // MYCODE END -------------------
+
+
+        // count all words in all docs. TODO: remove, just count query terms
         const docTermFreqs: Array<{[term: string]: number}> = [];
         const docLengths: number[] = [];
         let avgDocLen = 0;
@@ -73,7 +180,32 @@ export class MyDiySearch implements IIndexlessFts {
             .filter(d => d.score > 0)
             .sort((a, b) => b.score - a.score)
             .map(d => d.path);
-        return ranked;
+
+        // MYCODE START -------------------
+        const paths = Array.from(potentialDocs.docPaths());
+        const myScores: number[] = [];
+        for (const path of paths) {
+            let score = 0;
+            const myTerms = mustIncludeTerms.concat(plainTerms);
+            for (const term of myTerms) {
+                const f = potentialDocs.docTermCount(path, term);
+                if (f === 0) continue;
+                const df = potentialDocs.numDocsContaining(term);
+                const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+                const denom = f + k1 * (1 - b + b * (potentialDocs.docLen(path) / avgDocLen2));
+                score += idf * (f * (k1 + 1)) / denom;
+            }
+            myScores.push(score);
+        }
+        const myRanked = paths
+            .map((path, i) => ({ path, score: myScores[i] }))
+            .filter(d => d.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .map(d => d.path);
+        // MYCODE END -------------------
+
+        // return ranked; // their result
+        return myRanked; // my result
     }
 
     public searchText = (text: string, query: string) => {
