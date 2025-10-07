@@ -1,7 +1,5 @@
 import { IIndexedFts, IIndexlessFts, isIndexedFts } from './interfaces';
-import { MyJsSearch } from './jssearch/myJsSearch';
 import { LunrSearch } from './lunr/lunrSearch';
-import { MyMiniSearch } from './minisearch/myMiniSearch';
 import { MyDiySearch } from './my_diy/diySearch';
 
 declare global {
@@ -63,11 +61,12 @@ describe.each(searchBuilders)('%s', (name, builder) => {
   };
 
   const searchFor = async (query: string, text: string, tags: string[] = []) => {
+    const docs = [new FileAndTags(aTextFilePath, text, tags)];
     if (isIndexedFts(fts)) {
-        await index([new FileAndTags(aTextFilePath, text, tags)]);
+        await index(docs);
         return fts.search(query);
     } else {
-        return fts.searchText(text, query);
+        return fts.searchDocs(docs, query);
     }
   };
 
