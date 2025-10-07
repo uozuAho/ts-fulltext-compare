@@ -12,8 +12,8 @@ import { MyDiySearch } from '../my_diy/diySearch';
 type FtsBuilder = () => IIndexedFts | IIndexlessFts;
 
 async function runAll(filesDir: string) {
-    await benchmark('lunr', () => new LunrSearch(), filesDir);
-    await benchmark('myDiy', () => new MyDiySearch(), filesDir);
+    // await benchmark('lunr', () => new LunrSearch(), filesDir);
+    await benchmark('myDiy', () => new MyDiySearch(), filesDir, 5);
 
     // don't really care about these: they don't have the features i want
     // await benchmark('jssearch', () => new MyJsSearch(), filesDir);
@@ -32,10 +32,10 @@ function files(dir: string, numfiles: number) {
 async function benchmark(
     name: string,
     buildFts: FtsBuilder,
-    filesDir: string
+    filesDir: string,
+    numRuns: number = 5
 ) {
     let fts: IIndexedFts | IIndexlessFts | undefined;
-    const numRuns = 5;
     const numFilesToIndex = 100;
 
     const indexTimes: number[] = [];
