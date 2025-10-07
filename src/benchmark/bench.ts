@@ -12,8 +12,8 @@ import { MyDiySearch } from '../my_diy/diySearch';
 type FtsBuilder = () => IIndexedFts | IIndexlessFts;
 
 async function runAll(filesDir: string) {
-    // await benchmark('lunr', () => new LunrSearch(), filesDir);
-    await benchmark('myDiy', () => new MyDiySearch(), filesDir, 1);
+    await benchmark('lunr', () => new LunrSearch(), filesDir);
+    await benchmark('myDiy', () => new MyDiySearch(), filesDir);
 
     // don't really care about these: they don't have the features i want
     // await benchmark('jssearch', () => new MyJsSearch(), filesDir);
