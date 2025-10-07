@@ -1,2 +1,5 @@
 node_modules
 data
+*.log
+profile_output.txt
+v8.json

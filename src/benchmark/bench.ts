@@ -13,7 +13,7 @@ type FtsBuilder = () => IIndexedFts | IIndexlessFts;
 
 async function runAll(filesDir: string) {
     // await benchmark('lunr', () => new LunrSearch(), filesDir);
-    await benchmark('myDiy', () => new MyDiySearch(), filesDir, 5);
+    await benchmark('myDiy', () => new MyDiySearch(), filesDir, 1);
 
     // don't really care about these: they don't have the features i want
     // await benchmark('jssearch', () => new MyJsSearch(), filesDir);

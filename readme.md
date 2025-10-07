@@ -16,6 +16,7 @@ npm i
 npm test
 ./get-bench-data.sh                     # optional
 npm run bench ./data/md10000/files      # run with above data
+npm run bench-profile                   # profile the benchmark. must have above data
 ```
 
 # My test results

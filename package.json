@@ -18,6 +18,6 @@
     "test-watch": "jest --watch",
     "getData": "git clone https://github.com/Zettelkasten-Method/10000-markdown-files data/10000files",
     "bench": "ts-node src/benchmark/bench.ts",
-    "bench-profile": "node -r ts-node/register --prof src/benchmark/bench.ts && node --prof-process isolate-*.log > profile_output.txt"
+    "bench-profile": "node -r ts-node/register --prof src/benchmark/bench.ts data/md10000/files && node --prof-process isolate-*.log > profile_output.txt"
   }
 }
