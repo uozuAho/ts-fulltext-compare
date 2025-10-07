@@ -1,4 +1,4 @@
-import { IIndexlessFts } from "../interfaces";
+import { IDocument, IIndexlessFts } from "../interfaces";
 import { glob } from 'glob';
 import fs from 'fs';
 
@@ -15,6 +15,17 @@ export class MyDiySearch implements IIndexlessFts {
         }
         return results;
     };
+
+    public searchDocs = async (docs: IDocument[], query: string) => {
+        const results = [];
+        for (const doc of docs) {
+            const r = await this.searchText(doc.text, query);
+            if (r.length > 0) {
+                results.push(doc.path);
+            }
+        }
+        return results;
+    }
 
     public searchText = (text: string, query: string) => {
         let queryTerms = query.split(' ');
@@ -56,6 +67,7 @@ export class MyDiySearch implements IIndexlessFts {
             return Promise.resolve(["dummyPath"]);
         }
 
+        // todo: this function doesn't need to be async
         return Promise.resolve([]);
     }
 }

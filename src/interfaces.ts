@@ -3,8 +3,16 @@ export interface IIndexedFts {
     search: (query: string) => Promise<string[]>;
 }
 
+// todo: this is just used for testing. get rid of it
+export interface IDocument {
+    path: string;
+    text: string;
+}
+
 export interface IIndexlessFts {
     searchPath: (path: string, query: string) => Promise<string[]>;
+    // todo: this is just used for testing. get rid of it
+    searchDocs: (docs: IDocument[], query: string) => Promise<string[]>;
     searchText: (text: string, query: string) => Promise<string[]>;
 }
 

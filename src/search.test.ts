@@ -84,6 +84,44 @@ describe.each(searchBuilders)('%s', (name, builder) => {
     }
   });
 
+  describe('ranking', () => {
+    const files = [
+        new FileAndTags('common.txt', 'common words score less. some common words: good bad the thing.'),
+        new FileAndTags('another_common.txt', 'common words score less. some common words: good bad the thing.'),
+        new FileAndTags('clumbert.txt', 'Unique words score high: clumbert'),
+    ];
+
+    it('returns only doc with unique word', async () => {
+        await index(files);
+
+        const query = "clumbert";
+
+        const results = isIndexedFts(fts)
+            ? await fts.search(query)
+            : await fts.searchDocs(files, query);
+
+        expect(results).toStrictEqual([
+            'clumbert.txt'
+        ]);
+    });
+
+    it('unique words rank above common words', async () => {
+        await index(files);
+
+        const query = "clumbert common";
+
+        const results = isIndexedFts(fts)
+            ? await fts.search(query)
+            : await fts.searchDocs(files, query);
+
+        expect(results).toStrictEqual([
+            'clumbert.txt',
+            'common.txt',
+            'another_common.txt'
+        ]);
+    });
+  });
+
   it('findsSingleWord', async () => {
     await expect(searchFor("ham", "the ham is good")).toBeFound();
   });
