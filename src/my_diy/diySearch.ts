@@ -8,6 +8,8 @@ class DocStats {
     // path: term: count
     private _termCounts: Map<string, Map<string, number>> = new Map();
     private _docLens: Map<string, number> = new Map();
+    // term: numDocs
+    private _docCounts: Map<string, number> = new Map();
 
     public docPaths() {
         return this._termCounts.keys();
@@ -22,14 +24,7 @@ class DocStats {
     }
 
     public numDocsContaining(term: string) {
-        // todo: perf: store this count on addCount
-        let count = 0;
-        for (const [_, counts] of this._termCounts.entries()) {
-            if (counts.has(term)) {
-                count += 1;
-            }
-        }
-        return count;
+        return this._docCounts.get(term) || 0;
     }
 
     public addTermCount(doc: string, term: string, count: number) {
@@ -38,6 +33,9 @@ class DocStats {
         }
         const counts = this._termCounts.get(doc);
         counts?.set(term, (counts.get(term) || 0) + count);
+
+        // todo: prevent double counting?
+        this._docCounts.set(term, (this._docCounts.get(term) || 0) + 1)
     }
 
     public removeDoc(path: string) {
