@@ -70,7 +70,6 @@ export class MyDiySearch implements IIndexlessFts {
         const k1 = 1.5;
         const b = 0.75;
 
-        // MYCODE START -------------------
         let queryTerms2 = query.split(' ');
         let mustIncludeTerms = queryTerms2
             .filter(t => t.startsWith("+"))
@@ -82,17 +81,7 @@ export class MyDiySearch implements IIndexlessFts {
             .filter(t => !t.startsWith("+") && !t.startsWith("-"))
             .filter(t => !isStopWord(t))
             .map(t => crappyStem(t));
-        // MYCODE END -------------------
 
-        // Preprocess query terms (use same stemming/stopword logic as searchText)
-        // let queryTerms = query.split(' ')
-        //     .filter(t => !t.startsWith("+") && !t.startsWith("-"))
-        //     .filter(t => !isStopWord(t))
-        //     .map(t => crappyStem(t));
-        // if (queryTerms.length === 0) return [];
-
-        // MYCODE START -------------------
-        // path: term: count
         const potentialDocs = new DocCounts();
         let docLenSum = 0;
         for (const doc of docs) {
@@ -129,58 +118,7 @@ export class MyDiySearch implements IIndexlessFts {
             }
         }
         const avgDocLen2 = docLenSum / docs.length;
-        // MYCODE END -------------------
 
-
-        // // count all words in all docs. TODO: remove, just count query terms
-        // const docTermFreqs: Array<{[term: string]: number}> = [];
-        // const docLengths: number[] = [];
-        // let avgDocLen = 0;
-        // for (const doc of docs) {
-        //     const terms = doc.text
-        //         .split(/\W+/)
-        //         .map(t => crappyStem(t.toLowerCase()))
-        //         .filter(t => t && !isStopWord(t));
-        //     const tf: {[term: string]: number} = {};
-        //     for (const term of terms) {
-        //         tf[term] = (tf[term] || 0) + 1;
-        //     }
-        //     docTermFreqs.push(tf);
-        //     docLengths.push(terms.length);
-        //     avgDocLen += terms.length;
-        // }
-        // avgDocLen = docs.length > 0 ? avgDocLen / docs.length : 0;
-
-        // // Compute document frequencies for each query term
-        // const docFreq: {[term: string]: number} = {};
-        // for (const term of queryTerms) {
-        //     docFreq[term] = docs.reduce((acc, _, i) => acc + (docTermFreqs[i][term] ? 1 : 0), 0);
-        // }
-
-        // Compute BM25 scores
-        // const N = docs.length;
-        // const scores: number[] = [];
-        // for (let i = 0; i < docs.length; ++i) {
-        //     let score = 0;
-        //     for (const term of queryTerms) {
-        //         const f = docTermFreqs[i][term] || 0;
-        //         if (f === 0) continue;
-        //         const df = docFreq[term] || 0;
-        //         const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
-        //         const denom = f + k1 * (1 - b + b * (docLengths[i] / avgDocLen));
-        //         score += idf * (f * (k1 + 1)) / denom;
-        //     }
-        //     scores.push(score);
-        // }
-
-        // Sort docs by score (descending), filter out zero scores
-        // const ranked = docs
-        //     .map((doc, i) => ({ path: doc.path, score: scores[i] }))
-        //     .filter(d => d.score > 0)
-        //     .sort((a, b) => b.score - a.score)
-        //     .map(d => d.path);
-
-        // MYCODE START -------------------
         const N = docs.length;
         const paths = Array.from(potentialDocs.docPaths());
         const myScores: number[] = [];
@@ -202,10 +140,8 @@ export class MyDiySearch implements IIndexlessFts {
             .filter(d => d.score > 0)
             .sort((a, b) => b.score - a.score)
             .map(d => d.path);
-        // MYCODE END -------------------
 
-        // return ranked; // their result
-        return myRanked; // my result
+        return myRanked;
     }
 
     public searchText = (text: string, query: string) => {
