@@ -42,7 +42,11 @@ async function benchmark(
     const searchTimes: number[] = [];
     const memoryUsages: number[] = [];
 
-    console.log(`${name} indexing ${numFilesToIndex} files ${numRuns} times...`);
+    if (isIndexedFts(buildFts())) {
+        console.log(`${name} indexing ${numFilesToIndex} files & searching ${numRuns} times...`);
+    } else {
+        console.log(`${name} searching all files under ${filesDir} ${numRuns} times...`);
+    }
 
     for (let i = 0; i < numRuns; i++) {
         fts = undefined;
