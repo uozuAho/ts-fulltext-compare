@@ -36,7 +36,7 @@ async function benchmark(
 ) {
     let fts: IIndexedFts | IIndexlessFts | undefined;
     const numRuns = 5;
-    const numFilesToIndex = 1000;
+    const numFilesToIndex = 100;
 
     const indexTimes: number[] = [];
     const searchTimes: number[] = [];
