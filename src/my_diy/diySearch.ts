@@ -102,6 +102,7 @@ export class MyDiySearch implements IIndexlessFts {
         const paths = Array.from(docStats.docPaths());
         const myScores: number[] = [];
 
+        // rank by bm25
         for (const path of paths) {
             let score = 0;
             const myTerms = query.mustHave.concat(query.other);
