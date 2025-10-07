@@ -86,6 +86,7 @@ export class MyDiySearch implements IIndexlessFts {
         let docLenSum = 0;
         for (const doc of docs) {
             docLenSum += doc.text.length;
+            let excludeDoc = false;
             for (const term of mustIncludeTerms) {
                 // todo: perf: build these regexes once
                 const regex = new RegExp(`${term}`, 'g');
@@ -93,17 +94,23 @@ export class MyDiySearch implements IIndexlessFts {
                 if (count > 0) {
                     potentialDocs.addTermCount(doc.path, term, count);
                 } else {
-                    // todo: prolly need to stop searching here
+                    excludeDoc = true;
                     potentialDocs.removeDoc(doc.path);
                     break;
                 }
             }
+            if (excludeDoc) {
+                break;
+            }
             for (const term of mustNotIncludeTerms) {
                 if (doc.text.includes(term)) {
                     potentialDocs.removeDoc(doc.path);
-                    // todo: prolly need to stop searching here
+                    excludeDoc = true;
                     break;
                 }
+            }
+            if (excludeDoc) {
+                break;
             }
             for (const term of plainTerms) {
                 // todo: perf: build these regexes once
