@@ -2,7 +2,7 @@ import { IDocument, IIndexlessFts } from "../interfaces";
 import { glob } from 'glob';
 import fs from 'fs';
 
-class DocCounts {
+class DocStats {
     // path: term: count
     _termCounts: Map<string, Map<string, number>> = new Map();
     _docLens: Map<string, number> = new Map();
@@ -96,48 +96,7 @@ export class MyDiySearch implements IIndexlessFts {
 
         const query = parseQuery(queryStr);
 
-        const potentialDocs = new DocCounts();
-        let docLenSum = 0;
-        for (const doc of docs) {
-            docLenSum += doc.text.length;
-            let excludeDoc = false;
-            for (const term of query.mustHave) {
-                // todo: perf: build these regexes once
-                const regex = new RegExp(`${term}`, 'g');
-                const count = (doc.text.match(regex) || []).length;
-                if (count > 0) {
-                    potentialDocs.addTermCount(doc.path, term, count);
-                } else {
-                    excludeDoc = true;
-                    potentialDocs.removeDoc(doc.path);
-                    break;
-                }
-            }
-            if (excludeDoc) {
-                break;
-            }
-            for (const term of query.exclude) {
-                if (doc.text.includes(term)) {
-                    potentialDocs.removeDoc(doc.path);
-                    excludeDoc = true;
-                    break;
-                }
-            }
-            if (excludeDoc) {
-                break;
-            }
-            for (const term of query.other) {
-                // todo: perf: build these regexes once
-                const regex = new RegExp(`${term}`, 'g');
-                const count = (doc.text.match(regex) || []).length;
-                if (count > 0) {
-                    potentialDocs.addTermCount(doc.path, term, count);
-                }
-            }
-            if (potentialDocs.containsDoc(doc.path)) {
-                potentialDocs.setDocLen(doc.path, doc.text.length);
-            }
-        }
+        var { docLenSum, potentialDocs } = buildDocCounts(docs, query);
         const avgDocLen2 = docLenSum / docs.length;
 
         const N = docs.length;
@@ -164,6 +123,52 @@ export class MyDiySearch implements IIndexlessFts {
 
         return myRanked;
     }
+}
+
+function buildDocCounts(docs: IDocument[], query: Query) {
+    const stats = new DocStats();
+    let docLenSum = 0;
+    for (const doc of docs) {
+        docLenSum += doc.text.length;
+        let excludeDoc = false;
+        for (const term of query.mustHave) {
+            // todo: perf: build these regexes once
+            const regex = new RegExp(`${term}`, 'g');
+            const count = (doc.text.match(regex) || []).length;
+            if (count > 0) {
+                stats.addTermCount(doc.path, term, count);
+            } else {
+                excludeDoc = true;
+                stats.removeDoc(doc.path);
+                break;
+            }
+        }
+        if (excludeDoc) {
+            break;
+        }
+        for (const term of query.exclude) {
+            if (doc.text.includes(term)) {
+                stats.removeDoc(doc.path);
+                excludeDoc = true;
+                break;
+            }
+        }
+        if (excludeDoc) {
+            break;
+        }
+        for (const term of query.other) {
+            // todo: perf: build these regexes once
+            const regex = new RegExp(`${term}`, 'g');
+            const count = (doc.text.match(regex) || []).length;
+            if (count > 0) {
+                stats.addTermCount(doc.path, term, count);
+            }
+        }
+        if (stats.containsDoc(doc.path)) {
+            stats.setDocLen(doc.path, doc.text.length);
+        }
+    }
+    return { docLenSum, potentialDocs: stats };
 }
 
 function crappyStem(word: string) {
