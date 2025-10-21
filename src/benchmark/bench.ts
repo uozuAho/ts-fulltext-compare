@@ -7,14 +7,12 @@ import { IIndexedFts, IIndexlessFts, isIndexedFts } from '../interfaces';
 import { setFlagsFromString } from 'v8';
 import { runInNewContext } from 'vm';
 import { MyMiniSearch } from '../minisearch/myMiniSearch';
-import { MyDiySearch } from '../my_diy/diySearch';
 import { MyFts } from '../my_diy/myFts';
 
 type FtsBuilder = () => IIndexedFts | IIndexlessFts;
 
 async function runAll(filesDir: string) {
     await benchmark('lunr', () => new LunrSearch(), filesDir);
-    await benchmark('myDiy', () => new MyDiySearch(), filesDir);
     await benchmark('myFts', () => new MyFts(), filesDir);
 
     // don't really care about these: they don't have the features i want
@@ -38,7 +36,7 @@ async function benchmark(
     numRuns: number = 5
 ) {
     let fts: IIndexedFts | IIndexlessFts | undefined;
-    const numFilesToIndex = 100;
+    const numFilesToIndex = 250;
 
     const indexTimes: number[] = [];
     const searchTimes: number[] = [];

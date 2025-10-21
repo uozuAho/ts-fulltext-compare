@@ -1,6 +1,5 @@
 import { IIndexedFts, IIndexlessFts, isIndexedFts } from './interfaces';
 import { LunrSearch } from './lunr/lunrSearch';
-import { MyDiySearch } from './my_diy/diySearch';
 import { MyFts } from './my_diy/myFts';
 
 declare global {
@@ -41,7 +40,6 @@ type SearchBuilderTuple = [string, SearchBuilder];
 
 const searchBuilders: SearchBuilderTuple[] = [
     [ 'lunr', () => new LunrSearch() ],
-    [ 'myDiy', () => new MyDiySearch() ],
     [ 'myFts', () => new MyFts() ],
 
     // todo: fix failing tests in these, if they ever implement term presence

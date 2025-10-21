@@ -24,15 +24,19 @@ npm run bench-profile                   # profile the benchmark. must have above
 AMD Ryzen 5 3600
 
 ```
-lunr indexing 1000 files 5 times...
-  index time avg: 1522.2ms
-  search time avg: 2.2ms
-  memory usage avg (MB): 296.1
-myDiy indexing 1000 files 5 times... <--- todo: reword this. myDiy doesn't use an index
-  index time avg: 0ms
-  search time avg: 130ms             <--- well I'll be darned. This searches 10k files much faster than lunr can index 1k
-  memory usage avg (MB): 153.4
+> bench
+> ts-node src/benchmark/bench.ts ./data/md10000/files
 
+lunr indexing 250 files & searching 5 times...
+  index time avg: 392.2ms
+  search time avg: 0.8ms
+  memory usage avg (MB): 191.6
+myFts searching all files under ./data/md10000/files 5 times...
+  index time avg: 0ms
+  search time avg: 392.2ms      <--- well I'll be darned. This searches 10k files
+                                     in the same time it takes lunr to index 250
+  memory usage avg (MB): 172.1
+done
 
 don't care about these, they don't have the features I want:
 jssearch indexing 1000 files 5 times...
@@ -75,6 +79,7 @@ For https://github.com/uozuAho/note_searcher
     - compile to wasm, then https://code.visualstudio.com/blogs/2024/05/08/wasm
 ## no
 - libsearch: https://github.com/thesephist/libsearch
+    - note: MyFts does a very similar job
     - bad: no term presence
     - bad: import error when testing with jest
 - js-search: yep: https://github.com/bvaughn/js-search
