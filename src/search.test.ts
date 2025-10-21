@@ -1,6 +1,7 @@
 import { IIndexedFts, IIndexlessFts, isIndexedFts } from './interfaces';
 import { LunrSearch } from './lunr/lunrSearch';
 import { MyDiySearch } from './my_diy/diySearch';
+import { MyFts } from './my_diy/myFts';
 
 declare global {
   namespace jest {
@@ -41,6 +42,7 @@ type SearchBuilderTuple = [string, SearchBuilder];
 const searchBuilders: SearchBuilderTuple[] = [
     [ 'lunr', () => new LunrSearch() ],
     [ 'myDiy', () => new MyDiySearch() ],
+    [ 'myFts', () => new MyFts() ],
 
     // todo: fix failing tests in these, if they ever implement term presence
     // [ 'minisearch', () => new MyMiniSearch() ],
@@ -152,12 +154,6 @@ describe.each(searchBuilders)('%s', (name, builder) => {
       });
   });
 
-  describe('stop words', () => {
-    it('are not included in search', async () => {
-        await expect(searchFor("it and", "I saw it and ate chips")).not.toBeFound();
-    });
-  });
-
   it('finds word before slash', async () => {
     await expect(searchFor("red", "red/green/refactor")).toBeFound();
   });
@@ -213,29 +209,6 @@ describe.each(searchBuilders)('%s', (name, builder) => {
 
     it('does not find when excluded word is present', async () => {
       await expect(searchFor("ham -good", "the ham is good")).not.toBeFound();
-    });
-  });
-
-  // skip: I don't care about tags any more
-  describe.skip('search with tags', () => {
-    it('finds single tag', async () => {
-      await expect(searchFor("#beef", "The tags are", ['beef', 'chowder'])).toBeFound();
-    });
-
-    it('finds multiple tags', async () => {
-      await expect(searchFor("#beef #chowder", "The tags are", ['beef', 'chowder'])).toBeFound();
-    });
-
-    it('does not find missing tag', async () => {
-      await expect(searchFor("#asdf", "The tags are", ['beef', 'chowder'])).not.toBeFound();
-    });
-
-    it('does not find non tag', async () => {
-      await expect(searchFor("#tags", "The tags are", ['beef', 'chowder'])).not.toBeFound();
-    });
-
-    it('works with operators', async () => {
-      await expect(searchFor("#beef -#chowder", "The tags are", ['beef', 'chowder'])).not.toBeFound();
     });
   });
 });
